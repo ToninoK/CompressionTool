@@ -1,0 +1,2 @@
+
+int getOccurences(char*, int*);
