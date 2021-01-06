@@ -1,6 +1,6 @@
 
-typdef struct Element* Node;
-typdef struct QueueElement* QueueNode;
+typedef struct element* Node;
+typedef struct queueElement* QueueNode;
 
 
 typedef struct element{
@@ -11,15 +11,16 @@ typedef struct element{
 }Element;
 
 typedef struct queueElement{
-    QueueElement element;
+    Node element;
     QueueNode next;
 }QueueElement;
 
 
-int createNewQElement(Node);   
-int createNewElement(char, int);   
-int dequeue(Node);
+QueueNode createNewQElement(Node);   
+Node createNewElement(char, int);   
+int dequeue(QueueNode);
 int enqueue(QueueNode, QueueNode);
-Node peek(Node);
+Node peek(QueueNode);
 int getOccurences(char*, int*);
+Node createSubTree(Node, Node);
 int convertToPriorityQueue(int*, QueueNode);

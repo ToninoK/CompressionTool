@@ -1,3 +1,4 @@
+#include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
 
@@ -9,7 +10,7 @@ Node createNewElement(char character, int number){
     if(new == NULL)
         return NULL;
     new->character = character;
-    new->number = number;
+    new->occurences = number;
     new->left = NULL;
     new->right = NULL;
     return new;
@@ -31,7 +32,7 @@ int enqueue(QueueNode new, QueueNode head){
         head->next = new;
         return 0;
     }
-    while(head->next!=NULL && head->next->element->occurences >= new->element->occurences)
+    while(head->next!=NULL && head->next->element->occurences <= new->element->occurences)
         head = head->next;
     new->next = head->next;
     head->next = new;
@@ -39,18 +40,27 @@ int enqueue(QueueNode new, QueueNode head){
 }
 
 //Remove front of priority queue
-int dequeue(Node head){
-    Node temp = head->next;
+int dequeue(QueueNode head){
+    QueueNode temp = head->next;
     head->next = temp->next;
-    free(temp->element);
     free(temp);
+    return 0;
 }
 
 //Get the front of priority queue
-Node peek(Node head){
+Node peek(QueueNode head){
     if(head->next == NULL)
         return NULL;
     return head->next->element;
+}
+
+
+//Create a subtree from two nodes
+Node createSubTree(Node element1, Node element2){
+    Node root = createNewElement('#', element1->occurences + element2->occurences);
+    root->left = element1;
+    root->right = element2;
+    return root;
 }
 
 
@@ -67,8 +77,10 @@ int getOccurences(char* buffer, int* occurences){
 //Takes an int array of character occurences and converts it to a priority queue
 int convertToPriorityQueue(int* occurences, QueueNode head){
     for(int i = 0; i < 256; i++){
-        Node newElement = createNewNode((char) i, occurences[i]);
-        Node newQElement = createNewQNode(newElement);
+        if (occurences[i]==0)
+            continue;        
+        Node newElement = createNewElement((char) i, occurences[i]);
+        QueueNode newQElement = createNewQElement(newElement);
         enqueue(newQElement, head);
     }
     return 0;
