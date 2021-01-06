@@ -76,9 +76,10 @@ int getOccurences(char* buffer, int* occurences){
 
 //Takes an int array of character occurences and converts it to a priority queue
 int convertToPriorityQueue(int* occurences, QueueNode head){
-    for(int i = 0; i < 256; i++){
-        if (occurences[i]==0)
-            continue;        
+    for(int i = 0; i < 127; i++){
+        if (occurences[i] == 0)
+            continue;
+    
         Node newElement = createNewElement((char) i, occurences[i]);
         QueueNode newQElement = createNewQElement(newElement);
         enqueue(newQElement, head);
