@@ -52,27 +52,30 @@ int storeHuffmanCodes(Node root, char codeArray[127][127], char code[127], int p
 char* setHeader(int* occurences, int *size){
     for (int i = 0; i < 127; i++)
         if (occurences[i]!=0)
-            *size += (10 + strlen(intToCharArray(occurences[i])));
+            *size += (2 + strlen(intToCharArray(i)) + strlen(intToCharArray(occurences[i])));
 
     char * headerString = malloc(*size * sizeof(char));
     int position = 0;
     for(int i = 0; i < 127; i++){
         if (occurences[i] == 0)
             continue;
-        int bitArray[8];
-        decimalToBinary(i, bitArray);
-        for (int i = 0; i < 8; i++)
-            headerString[position++] = (char) bitArray[i];
-        
+
+        char* asciiValChar = intToCharArray(i);
+        strcat(headerString, asciiValChar);
+        position += strlen(asciiValChar);
+        free(asciiValChar);
+
         headerString[position++] = '-';
+
         char* stringNum = intToCharArray(occurences[i]);
         strcat(headerString, stringNum);
         position += strlen(stringNum);
         free(stringNum);
+
         headerString[position++] = ',';
     }
     position--;
-    headerString[position++] = '\n';
+    headerString[position++] = (char) 6; //ACK char, I took it for signaling end of header
     return (char*)headerString;
 }
 
@@ -80,15 +83,12 @@ char* setHeader(int* occurences, int *size){
 //Read a header and convert it to a huffman tree used for decoding
 Node readHeader(char* source){
     char* token = strtok(source, ",");
-    char original[9];
+    int asciiVal;
     int occurences[127] = {0};
     int occ;
     while (token!=NULL){
-        int bitArr[8];
-        sscanf(token, "%[0-1]-%d", original, &occ);
-        convertCharArrToBitArr(original, bitArr);
-        int symbol = binaryToDecimal(bitArr);
-        occurences[symbol] = occ;
+        sscanf(token, "%d-%d", &asciiVal, &occ);
+        occurences[(int)asciiVal] = occ;
         token = strtok(NULL, ",");
     }
     QueueNode head = createNewQElement(NULL);
@@ -106,9 +106,11 @@ int encodeStringToHuffman(char* plainTextString, char* codedString, char codeArr
     uint8_t buffer = 0;
     int fullness = 0;
     int size = 0;
+    int fileSize = 0;
     char* header = setHeader(occurences, &size);
     fwrite(header, size, 1, f);
     free(header);
+    fileSize += size;
 
     for(int i = 0; i < strlen(plainTextString); i++){
         for (int j = 0; j < 127; j++){
@@ -119,6 +121,7 @@ int encodeStringToHuffman(char* plainTextString, char* codedString, char codeArr
             fullness++;
             if (fullness==8){
                 fputc(buffer, f);
+                fileSize++;
                 fullness = 0;
                 buffer = 0;
             }
@@ -128,9 +131,10 @@ int encodeStringToHuffman(char* plainTextString, char* codedString, char codeArr
         for (int i = 7-fullness; i >= 0; i--)
             buffer |= 0 << i;
         fputc(buffer, f);
+        fileSize++;
     }
     fclose(f);
-    return 0;
+    return fileSize;
 }
 
 
@@ -138,7 +142,7 @@ int encodeStringToHuffman(char* plainTextString, char* codedString, char codeArr
 int decodeFromHuffman(char* filename){
     FILE* encoded = fopen(filename, "rb");
     int counter = 1;
-    while (fgetc(encoded)!='\n')
+    while ((int)fgetc(encoded) != 6)
         counter++;
 
     rewind(encoded);

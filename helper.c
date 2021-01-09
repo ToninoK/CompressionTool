@@ -22,14 +22,6 @@ char * getTextFromFile(char* filename){
 }
 
 
-//Convert char array to bit array
-int convertCharArrToBitArr(char* charArray, int* bitArray){
-    for (int i = 0; i < 8; i++)
-        bitArray[i] = charArray[i] - '0';
-    return 0;
-}
-
-
 //Convert an integer to an array of chars
 char* intToCharArray(int num){
     int copy = num;
@@ -45,23 +37,4 @@ char* intToCharArray(int num){
     }
     numInChar[len-1] = '\0';
     return (char*) numInChar;
-}
-
-
-//Convert an array of integers representing a binary number to a decimal number
-int binaryToDecimal(int* bitArray){
-    int sum = 0;
-    for (int i = 7; i >= 0; i--)
-        sum += bitArray[i] * pow(2, 7-i);
-    return sum;    
-}
-
-
-//Convert a decimal number to an array of integers representing a binary number
-int decimalToBinary(int decimal, int* bitArray){
-    for (int i = 0; i < 8; i++){
-        bitArray[7-i] = decimal % 2 + 48;
-        decimal = decimal/2;
-    }
-    return 0;    
 }

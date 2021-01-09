@@ -10,7 +10,8 @@ int compress(char* text){
     int occ[127] = {0};
     char codeArray[127][127] = {0}, code[127];
     printf("\nCalculating frequencies of letters...");
-    getOccurences(text, occ);
+    int fileSize = getOccurences(text, occ);
+    printf("\nFile to start with is %d bytes in size.", fileSize);
     printf("\nCreating Huffman tree...");
     QueueNode head = createNewQElement(NULL);
     if(head == NULL){
@@ -26,7 +27,8 @@ int compress(char* text){
     storeHuffmanCodes(root, codeArray, code, 0);
     char* encoded = malloc(strlen(text));
     printf("\nEncoding data...");
-    encodeStringToHuffman(text, encoded, codeArray, occ);
+    int endFileSize = encodeStringToHuffman(text, encoded, codeArray, occ);
+    printf("\nEncoded file is %d bytes in size.", endFileSize);
     printf("\nFreeing up taken memory...");
     deallocate(root);
     free(head->next);
@@ -70,7 +72,5 @@ int main(){
         break;
     }
 
-    
-    
     return 0;
 }
