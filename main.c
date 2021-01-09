@@ -2,50 +2,75 @@
 #include<stdlib.h>
 #include<string.h>
 
-#include "helper.h"
 #include "huffman.h"
 
 
-void padding ( char ch, int n )
-{
-  int i;
-
-  for ( i = 0; i < n; i++ )
-    putchar ( ch );
-}
-
-void structure ( Node root, int level )
-{
-  int i;
-
-  if ( root == NULL ) {
-    padding ( '\t', level );
-    puts ( "~" );
-  }
-  else {
-    structure ( root->right, level + 1 );
-    padding ( '\t', level );
-    printf ( "%c %d\n", root->character, root->occurences );
-    structure ( root->left, level + 1 );
-  }
-}
-
-int main(){
-    char* start = "Ovo je random poruka koju sam ja napisao.";
+//Abstract the process of compressing to just one function
+int compress(char* text){
     int occ[127] = {0};
-    getOccurences(start, occ);
-    
+    char codeArray[127][127] = {0}, code[127];
+    printf("\nCalculating frequencies of letters...");
+    getOccurences(text, occ);
+    printf("\nCreating Huffman tree...");
     QueueNode head = createNewQElement(NULL);
+    if(head == NULL){
+        printf("Error: Memory allocation failed.");
+        return -1;
+    }
     convertToPriorityQueue(occ, head);
     Node root = buildHuffmanTree(head);
-    char codeArray[127][8] = {0}, code[8];
+    if(root == NULL){
+        printf("Warning: No data. Exiting");
+        return 1;
+    }
     storeHuffmanCodes(root, codeArray, code, 0);
-    char new[100];
-    encodeStringToHuffman(start, new, codeArray, occ);
-    decodeFromHuffman("encoded.bin");
-    printf("%s", new);
-    // for (int i = 0; i < strlen(new); i++)
-        // printf("%c %d\n", new[i], new[i]);
+    char* encoded = malloc(strlen(text));
+    printf("\nEncoding data...");
+    encodeStringToHuffman(text, encoded, codeArray, occ);
+    printf("\nFreeing up taken memory...");
+    deallocate(root);
+    free(head->next);
+    free(head);
+    return 0;
+}
+
+
+int main(){
+    int occ[127] = {0};
+    int selection;
+    char codeArray[127][127] = {0}, code[127];
+    char filename[50]; 
+
+    printf("\nSelect an option:\n");
+    printf("\n1) Compression\n2) Decompression\nType 1 or 2 and hit enter (be gentle): ");
+    scanf(" %d", &selection);
+    
+    printf("\nEnter filename: ");
+    scanf("%s", filename);
+
+    switch (selection){
+        case 1:
+            {
+                char* text = getTextFromFile(filename);
+                int result = compress(text);
+                if(result == 0)
+                    printf("\nSuccess!\nData is encoded in the file encoded.bin.\nFeel free to rename it since I didn't feel like implementing it.\n");
+                else
+                    printf("\nError occurred");
+                break;
+            }
+        case 2:
+            {
+                decodeFromHuffman(filename);
+                printf("\nDecoded file.\nData is decoded in the file decoded.txt.\nFeel free to rename it since i didn't feel like implementing it :).\n");
+            }
+            break;
+    default:
+        printf("You can't follow simple instructions, can you? bye.");
+        break;
+    }
+
+    
     
     return 0;
 }

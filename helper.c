@@ -1,88 +1,67 @@
-#include<stdio.h>
-#include<string.h>
 #include<stdlib.h>
+#include<stdio.h>
+#include <math.h>
 
 #include "helper.h"
 
-//Create new tree node (leaf)
-Node createNewElement(char character, int number){
-    Node new = malloc(sizeof(Element));
-    if(new == NULL)
-        return NULL;
-    new->character = character;
-    new->occurences = number;
-    new->left = NULL;
-    new->right = NULL;
-    return new;
-}
 
-//Create new queue node
-QueueNode createNewQElement(Node element){
-    QueueNode new = malloc(sizeof(QueueElement));
-    if(new == NULL)
+//Get text from file and return it
+char * getTextFromFile(char* filename){
+    FILE* f = fopen(filename, "rb");
+    if(f == NULL){
+        printf("Warning: File is busy. Exiting...");
         return NULL;
-    new->element = element;
-    new->next = NULL;
-    return new;
-}
-
-//Add to priority queue
-int enqueue(QueueNode new, QueueNode head){
-    if(head->next == NULL){
-        head->next = new;
-        return 0;
     }
-    while(head->next!=NULL && head->next->element->occurences <= new->element->occurences)
-        head = head->next;
-    new->next = head->next;
-    head->next = new;
-    return 0;
-}
-
-//Remove front of priority queue
-int dequeue(QueueNode head){
-    QueueNode temp = head->next;
-    head->next = temp->next;
-    free(temp);
-    return 0;
-}
-
-//Get the front of priority queue
-Node peek(QueueNode head){
-    if(head->next == NULL)
-        return NULL;
-    return head->next->element;
+    fseek(f, 0, SEEK_END);
+    long fileSize = ftell(f);
+    rewind(f);
+    char* text = malloc(fileSize + 1);
+    fread(text, 1, fileSize, f);
+    fclose(f);
+    return (char*) text;
 }
 
 
-//Create a subtree from two nodes
-Node createSubTree(Node element1, Node element2){
-    Node root = createNewElement('#', element1->occurences + element2->occurences);
-    root->left = element1;
-    root->right = element2;
-    return root;
-}
-
-
-//Takes in a string and counts occurences of each character in the string
-//This is done with an integer array where the position represents the ascii value of character
-//and the value represents the number of occurences
-int getOccurences(char* buffer, int* occurences){
-    for(int i = 0; i < strlen(buffer); i++)
-        occurences[(int)buffer[i]] += 1;
+//Convert char array to bit array
+int convertCharArrToBitArr(char* charArray, int* bitArray){
+    for (int i = 0; i < 8; i++)
+        bitArray[i] = charArray[i] - '0';
     return 0;
 }
 
 
-//Takes an int array of character occurences and converts it to a priority queue
-int convertToPriorityQueue(int* occurences, QueueNode head){
-    for(int i = 0; i < 127; i++){
-        if (occurences[i] == 0)
-            continue;
-    
-        Node newElement = createNewElement((char) i, occurences[i]);
-        QueueNode newQElement = createNewQElement(newElement);
-        enqueue(newQElement, head);
+//Convert an integer to an array of chars
+char* intToCharArray(int num){
+    int copy = num;
+    int len = 1;
+    while (copy){
+        len++;
+        copy /= 10;
     }
-    return 0;
+    char* numInChar = malloc(len);
+    for (int i = 0; i < len; i++){
+        numInChar[len-2-i] = num % 10 + '0';
+        num = num/10;
+    }
+    numInChar[len-1] = '\0';
+    return (char*) numInChar;
+}
+
+
+//Convert an array of integers representing a binary number to a decimal number
+int binaryToDecimal(int* bitArray){
+    int sum = 0;
+    for (int i = 7; i >= 0; i--)
+        sum += bitArray[i] * pow(2, 7-i);
+    return sum;    
+}
+
+
+//Convert a decimal number to an array of integers representing a binary number
+int decimalToBinary(int decimal, int* bitArray){
+    for (int i = 0; i < 8; i++){
+        bitArray[7-i] = decimal % 2 + 48;
+        decimal = decimal/2;
+    }
+    return 0;    
 }

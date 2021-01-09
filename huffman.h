@@ -1,10 +1,11 @@
+#include "helper.h"
+#include "queue.h"
+
 Node buildHuffmanTree(QueueNode);
-int storeHuffmanCodes(Node, char[127][8], char[8], int);
-int setHeader(int*, char*);
-int encodeStringToHuffman(char*, char*, char[127][8], int*);
-char* intToCharArray(int);
-int convertCharToBitArray(char*, int*);
-int binaryToDecimal(int*);
-int decimalToBinary(int, int*);
-int decodeFromHuffman(char*);
+int storeHuffmanCodes(Node, char[127][127], char[8], int);
+char* setHeader(int*, int*);
+int encodeStringToHuffman(char*, char*, char[127][127], int*);
 Node readHeader(char*);
+int getLen(Node, int*);
+int deallocate(Node);
+int decodeFromHuffman(char*);
